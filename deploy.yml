@@ -1,0 +1,46 @@
+name: Deploy Lizard Bot
+
+on:
+  push:
+    branches: [ main ] # Спрацює, коли ти зробиш push у гілку main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Переходимо в папку проєкту (створи її заздалегідь: mkdir -p ~/lizard-bot)
+            mkdir -p ~/lizard-bot
+            cd ~/lizard-bot
+            
+            # Оновлюємо код (якщо репозиторій уже клонований) або клонуємо (якщо вперше)
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git pull origin main
+            fi
+
+            # Створюємо файл .env з токеном із секретів GitHub
+            echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+            
+            # Перезбірка Docker-образу
+            docker build -t lizard-tg-bot .
+            
+            # Зупиняємо старий контейнер і запускаємо новий
+            docker stop lizard-tg-bot || true
+            docker rm lizard-tg-bot || true
+            docker run -d \
+              --name lizard-tg-bot \
+              --restart always \
+              --env-file .env \
+              lizard-tg-bot
