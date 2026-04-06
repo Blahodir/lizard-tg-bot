@@ -18,8 +18,8 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
+          timeout: 60s
+          command_timeout: 10m
           script: |
-            echo "Connection successful!"
-            mkdir -p ~/lizard-bot
-            cd ~/lizard-bot
-            # Тут пізніше додамо команди Docker
+            echo "Вхід виконано успішно!"
+            uptime
