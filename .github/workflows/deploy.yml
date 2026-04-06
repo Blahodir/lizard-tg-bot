@@ -1,4 +1,3 @@
-cat <<EOF > .github/workflows/deploy.yml
 name: Deploy Lizard Bot
 
 on:
@@ -15,13 +14,12 @@ jobs:
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: \${{ secrets.REMOTE_HOST }}
-          username: \${{ secrets.REMOTE_USER }}
-          key: \${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            echo "З'єднання встановлено! Починаю деплой..."
+            echo "Connection successful!"
             mkdir -p ~/lizard-bot
             cd ~/lizard-bot
-            # Тут пізніше додамо решту команд
-EOF
+            # Тут пізніше додамо команди Docker
